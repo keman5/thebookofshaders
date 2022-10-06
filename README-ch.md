@@ -103,15 +103,3 @@ Patricio 研习和实践精神疗法（psychotherapy）和表达性艺术治疗�
 感谢 [Karim Naaji](http://karim.naaji.fr/) 在代码和想法上的支持和贡献。
 
 感谢所有相信这个项目的人[contributed with fixes](https://github.com/patriciogonzalezvivo/thebookofshaders/graphs/contributors) 以及大家的捐赠.
-
-## 获取新的章节
-
-注册以获得最新章节， 或 [在 Twitter 上关注：](https://twitter.com/bookofshaders)
-
-<div id="fd-form-623359074e5181d777e479f9"></div>
-<script>
-  window.fd('form', {
-    formId: '623359074e5181d777e479f9',
-    containerEl: '#fd-form-623359074e5181d777e479f9'
-  });
-</script>

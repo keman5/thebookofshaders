@@ -292,7 +292,7 @@ function enableThemeSwitcher() {
         setTheme(currentTheme);
     } );
 
-    var className = window.location.pathname === '/' ? 'toc-header' : 'header';
+    var className = 'toc-header';
     var header = document.getElementsByClassName(className)[0];
     header.insertAdjacentElement('beforeend', switcher);
 

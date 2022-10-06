@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+            <html lang="en" data-theme="light">
+
+                <head>
+                    <meta charset="utf-8">
+
+                    <title>The Book of Shaders</title>
+                    <link href="/favicon.gif" rel="shortcut icon" />
+                    <meta name="keywords" content="shader,openGL,WebGL,GLSL,book,procedural,generative" />
+                    <meta name="description" content="Gentle step-by-step guide through the abstract and complex universe of Fragment Shaders." />
+
+                    <!— Open Graph data —>
+                    <meta property="og:type" content="article" />
+                    <meta property="og:title" content="The Book of Shaders" />
+                    <meta property="og:site_name" content="The Book of Shaders" />
+                    <meta property="og:description" content="Gentle step-by-step guide through the abstract and complex universe of Fragment Shaders." />
+                    <meta property="og:image" content="http://thebookofshaders.com/thumb.png" />
+                    <meta property="og:image:secure_url" content="https://thebookofshaders.com/thumb.png" />
+                    <meta property="og:image:type" content="image/png" />
+                    <meta property="og:image:width" content="500" />
+                    <meta property="og:image:height" content="500" />
+
+                    <link href="/favicon.gif" rel="shortcut icon" />
+
+                    <!-- Highlight -->
+                    <link type="text/css" rel="stylesheet" href="/css/github.css">
+                    <script type="text/javascript" src="/src/highlight.min.js"></script>
+                    <!-- GlslCanvas -->
+                    <script type="text/javascript" src="/src/glslCanvas/GlslCanvas.js"></script>
+
+                    <!-- GlslEditor -->
+                    <link type="text/css" rel="stylesheet" href="/src/glslEditor/glslEditor.css">
+                    <script type="application/javascript" src="/src/glslEditor/glslEditor.js"></script>
+
+                    <!-- GlslGallery -->
+                    <link type="text/css" rel="stylesheet" href="/src/glslGallery/glslGallery.css">
+                    <script type="application/javascript" src="/src/glslGallery/glslGallery.js"></script>
+
+                    <!-- Main style -->
+                    <link type="text/css" rel="stylesheet" href="/css/styles.css">
+
+                </head>
+
+                <body>
+                    <div class="toc-header">
+                        <p class="subtitle"><a href="https://thebookofshaders.com/">The Book of Shaders</a> by <a href="http://patriciogonzalezvivo.com">Patricio Gonzalez Vivo</a> & <a href="http://jenlowe.net">Jen Lowe</a> </p>
+                        <p>  <a href=".">中文版</a> - <a href="https://thebookofshaders.com/">English</a></p>
+                    </div>
+                    <hr>
+
+                    <div id="content"><h2 id="运行你的-shader">运行你的 shader</h2>
+<p>我制作了一套工具生态系统，用于创建、显示、分享与使用 shader，以此作为本书结构及我艺术实践的一部分。这些工具是跨平台的，无需更改代码就能在 Linux、MacOS、Windows、<a href="https://www.raspberrypi.org/">树莓派</a> 和浏览器上表现一致。</p>
+<h2 id="在浏览器上运行你的-shader">在浏览器上运行你的 shader</h2>
+<p><strong>显示</strong>: 本书中所有实例都可以用 <a href="https://github.com/patriciogonzalezvivo/glslCanvas">glslCanvas</a> 来显示，这样一来，运行独立的 shader 程序就变得非常简单.</p>
+<pre><code class="language-html">&lt;canvas class=&quot;glslCanvas&quot; data-fragment-url=“yourShader.frag&quot; data-textures=“yourInputImage.png” width=&quot;500&quot; height=&quot;500&quot;&gt;&lt;/canvas&gt;
+</code></pre>
+<p>如你所见, 只需要创建一个类名为 <code>class=&quot;glslCanvas&quot;</code> 的 <code>canvas</code> 元素，并将你的 shader 链接放在  <code>data-fragment-url</code> 中. 在 <a href="https://github.com/patriciogonzalezvivo/glslCanvas">这里</a> 可以了解更多.</p>
+<p>你可能会像我一样想要从命令行直接运行 shader，那你需要看看 <a href="https://github.com/patriciogonzalezvivo/glslViewer">glslViewer</a>。这个应用程序可以将 shader 放到  <code>bash</code> 脚本或 unix 管道里，并且像 <a href="http://www.imagemagick.org/script/index.php">ImageMagick</a> 一样使用它。此外，<a href="https://github.com/patriciogonzalezvivo/glslViewer">glslViewer</a> 也是一个在 <a href="https://www.raspberrypi.org/">树莓派</a> 上编译 shader 的好办法, 这就是 <a href="http://openframe.io/">openFrame.io</a> 用它来展示shader 作品的原因。在 <a href="https://github.com/patriciogonzalezvivo/glslViewer">这里</a> 可以了解该应用程序的更多信息。</p>
+<pre><code class="language-bash">glslViewer yourShader.frag yourInputImage.png —w 500 -h 500 -s 1 -o yourOutputImage.png
+</code></pre>
+<p><strong>创建</strong>: 为了介绍 shader 编码的经验，我制作了在线编辑器 <a href="https://github.com/patriciogonzalezvivo/glslEditor">glslEditor</a>。本书的实例中内嵌了这个编辑器。这个编辑器有很多好用的小组件，使编写 glsl 代码的体验更加直观。你也可以在 <a href="http://editor.thebookofshaders.com/">editor.thebookofshaders.com/</a> 上将其作为独立的 Web 应用运行。在 <a href="https://github.com/patriciogonzalezvivo/glslEditor">这里</a> 了解更多。</p>
+<p><img src="glslEditor-01.gif" alt=""></p>
+<p>如果你更喜欢用 <a href="https://www.sublimetext.com/">SublimeText</a> 离线编程，你可以安装 <a href="https://packagecontrol.io/packages/glslViewer">package for glslViewer</a>。 在 <a href="https://github.com/patriciogonzalezvivo/sublime-glslViewer">这里</a> 了解更多.</p>
+<p><img src="glslViewer.gif" alt=""></p>
+<p><strong>分享</strong>: 在线编辑器 (<a href="http://editor.thebookofshaders.com/">editor.thebookofshaders.com/</a>) 可以分享你的 shader！内嵌版和独立版都有导出按钮，你可以通过这个按钮获得 shader 的唯一链接。编辑器也可以直接将 shader 导出到 <a href="http://openframe.io/">openFrame.io</a>。</p>
+<p><img src="glslEditor-00.gif" alt=""></p>
+<p><strong>使用</strong>: 分享代码只是分享 shader 作品的开始！除了导出到 <a href="http://openframe.io/">openFrame.io</a>，我还制作了使用 shader 的工具 <a href="https://github.com/patriciogonzalezvivo/glslGallery">glslGallery</a>，它可以将 shader 放入画廊中，以便嵌入到任何网站. 在 <a href="https://github.com/patriciogonzalezvivo/glslGallery">这里</a> 了解更多.</p>
+<p><img src="glslGallery.gif" alt=""></p>
+<h2 id="在你喜欢的框架上运行你的-shader">在你喜欢的框架上运行你的 shader</h2>
+<p>如果你使用过这些这些框架: <a href="https://processing.org/">Processing</a>, <a href="http://threejs.org/">Three.js</a>, <a href="http://openframeworks.cc/">OpenFrameworks</a> 或 <a href="https://www.sfml-dev.org/">SFML</a>, 你可能更愿意在你觉得舒服的这些平台上编写 shader。下面将会介绍在这些框架中，用本书范式编写 shader 的方法。 (在 <a href="https://github.com/patriciogonzalezvivo/thebookofshaders/tree/master/04">本章节的 GitHub 仓库中</a>, 你能找到这三个框架的完整源码.)</p>
+<h3 id="threejs"><strong>Three.js</strong></h3>
+<p>为人谦逊而非常有才华的 Ricardo Cabello (也就是 <a href="https://twitter.com/mrdoob">MrDoob</a> )和许多<a href="https://github.com/mrdoob/three.js/graphs/contributors">贡献者</a> 一起搭了可能是 WebGL 最知名的平台，<a href="http://threejs.org/">Three.js</a>。你可以找到无数程序示例，教程，书籍，教你如何用这个 JavaScript 库做出酷炫的 3D 图像。</p>
+<p>下面是一个你需要的例子，教你用 three.js 玩转 shader。注意 <code>id=&quot;fragmentShader&quot;</code>脚本，你要把下面的代码拷到里面。</p>
+<p>下面是一个 HTML 和 JS 的示例，</p>
+<pre><code class="language-html">&lt;body&gt;
+    &lt;div id=&quot;container&quot;&gt;&lt;/div&gt;
+    &lt;script src=&quot;js/three.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script id=&quot;vertexShader&quot; type=&quot;x-shader/x-vertex&quot;&gt;
+        void main() {
+            gl_Position = vec4( position, 1.0 );
+        }
+    &lt;/script&gt;
+    &lt;script id=&quot;fragmentShader&quot; type=&quot;x-shader/x-fragment&quot;&gt;
+        uniform vec2 u_resolution;
+        uniform float u_time;
+
+        void main() {
+            vec2 st = gl_FragCoord.xy/u_resolution.xy;
+            gl_FragColor=vec4(st.x,st.y,0.0,1.0);
+        }
+    &lt;/script&gt;
+    &lt;script&gt;
+        var container;
+        var camera, scene, renderer, clock;
+        var uniforms;
+
+        init();
+        animate();
+
+        function init() {
+            container = document.getElementById( &#39;container&#39; );
+
+            camera = new THREE.Camera();
+            camera.position.z = 1;
+
+            scene = new THREE.Scene();
+            clock = new THREE.Clock();
+
+            var geometry = new THREE.PlaneBufferGeometry( 2, 2 );
+
+            uniforms = {
+                u_time: { type: &quot;f&quot;, value: 1.0 },
+                u_resolution: { type: &quot;v2&quot;, value: new THREE.Vector2() }
+            };
+
+            var material = new THREE.ShaderMaterial( {
+                uniforms: uniforms,
+                vertexShader: document.getElementById( &#39;vertexShader&#39; ).textContent,
+                fragmentShader: document.getElementById( &#39;fragmentShader&#39; ).textContent
+            } );
+
+            var mesh = new THREE.Mesh( geometry, material );
+            scene.add( mesh );
+
+            renderer = new THREE.WebGLRenderer();
+            renderer.setPixelRatio( window.devicePixelRatio );
+
+            container.appendChild( renderer.domElement );
+
+            onWindowResize();
+            window.addEventListener( &#39;resize&#39;, onWindowResize, false );
+        }
+
+        function onWindowResize( event ) {
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            uniforms.u_resolution.value.x = renderer.domElement.width;
+            uniforms.u_resolution.value.y = renderer.domElement.height;
+        }
+
+        function animate() {
+            requestAnimationFrame( animate );
+            render();
+        }
+
+        function render() {
+            uniforms.u_time.value += clock.getDelta();
+            renderer.render( scene, camera );
+        }
+    &lt;/script&gt;
+&lt;/body&gt;
+</code></pre>
+<h3 id="processing"><strong>Processing</strong></h3>
+<p>2001年由<a href="http://benfry.com/">Ben Fry</a> 和 <a href="http://reas.com/">Casey Reas</a> 创建，<a href="https://processing.org/">Processing</a>是一个极其简约而强大的环境，非常适合初尝代码的人（至少对于我来是这样）。关于 OpenGL 和视频，<a href="https://codeanticode.wordpress.com/">Andres Colubri</a>为 Processing 平台做了很重要的更新，使得环境非常友好，玩 GLSL shader 比起以前大大容易了。Processing 会在你的 sketch 的 <code>data</code> 文件夹搜索名为 <code>&quot;shader.frag&quot;</code> 的文件。记得把这里的示例代码拷到你的文件夹里然后重命名 shader。</p>
+<pre><code class="language-processing">PShader shader;
+
+void setup() {
+  size(640, 360, P2D);
+  noStroke();
+
+  shader = loadShader(&quot;shader.frag&quot;);
+}
+
+void draw() {
+  shader.set(&quot;u_resolution&quot;, float(width), float(height));
+  shader.set(&quot;u_mouse&quot;, float(mouseX), float(mouseY));
+  shader.set(&quot;u_time&quot;, millis() / 1000.0);
+  shader(shader);
+  rect(0,0,width,height);
+}
+</code></pre>
+<p>在 2.1 版之前的版本运行 shader，你需要在你的 shader 文件开头添加以下代码：
+ <code>#define PROCESSING_COLOR_SHADER</code>。所以它应该看起来是这样：</p>
+<pre><code class="language-glsl">#ifdef GL_ES
+precision mediump float;
+#endif
+
+#define PROCESSING_COLOR_SHADER
+
+uniform vec2 u_resolution;
+uniform vec3 u_mouse;
+uniform float u_time;
+
+void main() {
+    vec2 st = gl_FragCoord.st/u_resolution;
+    gl_FragColor = vec4(st.x,st.y,0.0,1.0);
+}
+</code></pre>
+<p>更多 Processing 的 shader 教程戳 <a href="https://processing.org/tutorials/pshader/">tutorial</a>。</p>
+<h3 id="openframeworks"><strong>openFrameworks</strong></h3>
+<p>每个人都有自己的舒适区，我的则是<a href="http://openframeworks.cc/">openFrameworks community</a>。这个 C++ 框架打包了 OpenGL 和其他开源 C++ 库。在很多方面它和 Processing 非常像，但是明显和 C++ 编译器打交道一定比较麻烦。和 Processing 很像地，openFrameworks 会在你的 data 文件夹里寻找 shader 文件，所以不要忘记把你的后缀 <code>.frag</code> 的文件拷进去，加载的时候记得改名。</p>
+<pre><code class="language-cpp">void ofApp::draw(){
+    ofShader shader;
+    shader.load(&quot;&quot;,&quot;shader.frag&quot;);
+
+    shader.begin();
+    shader.setUniform1f(&quot;u_time&quot;, ofGetElapsedTimef());
+    shader.setUniform2f(&quot;u_resolution&quot;, ofGetWidth(), ofGetHeight());
+    ofRect(0,0,ofGetWidth(), ofGetHeight());
+    shader.end();
+}
+</code></pre>
+<p>关于 shader 在 openFrameworks 的更多信息请参考这篇<a href="http://openframeworks.cc/ofBook/chapters/shaders.html">excellent tutorial</a>，作者是 <a href="http://thefactoryfactory.com/">Joshua Noble</a>。</p>
+</div>
+
+                    <hr>
+                    <ul class="navigationBar" >
+                            <li class="navigationBar" onclick="previusPage()">&lt; &lt; Previous</li>
+                            <li class="navigationBar" onclick="homePage()"> Home </li>
+                            <li class="navigationBar" onclick="nextPage()">Next &gt; &gt;</li>
+                        </ul>
+
+                    <footer>
+                        <p> Copyright 2015 <a href="http://www.patriciogonzalezvivo.com" target="_blank">Patricio Gonzalez Vivo</a> </p>
+                    </footer>
+
+                    <script src="/src/three.min.js"></script>
+
+                    <script id="vertexShader" type="x-shader/x-vertex">
+                        void main() {
+                            gl_Position = vec4( position, 1.0 );
+                        }
+                    </script>
+
+                    <script id="fragmentShader" type="x-shader/x-fragment">
+                        uniform vec2 u_resolution;
+                        uniform vec2 u_mouse;
+                        uniform float u_time;
+
+                        void main() {
+                            vec2 st = gl_FragCoord.xy/u_resolution.xy;
+                            gl_FragColor=vec4(st.x,st.y,0.0,1.0);
+                        }
+                    </script>
+
+                    <script>
+                        var camera, scene, renderer, clock;
+                        var uniforms;
+                        var mouse = { x: 0, y: 0 };
+
+                        document.onmousemove = getMouseXY;
+
+                        function getMouseXY (e) {
+                            mouse.x = e.pageX;
+                            mouse.y = e.pageY;
+                        }
+
+                        function init () {
+
+                            camera = new THREE.Camera();
+                            camera.position.z = 1;
+
+                            scene = new THREE.Scene();
+                            clock = new THREE.Clock();
+
+                            var geometry = new THREE.PlaneBufferGeometry(2, 2);
+
+                            uniforms = {
+                                u_time: { type: "f", value: 1.0 },
+                                u_mouse: { type: "v2", value: new THREE.Vector2() },
+                                u_resolution: { type: "v2", value: new THREE.Vector2() }
+                            };
+
+                            var material = new THREE.ShaderMaterial({
+                                uniforms: uniforms,
+                                vertexShader: document.getElementById('vertexShader').textContent,
+                                fragmentShader: document.getElementById('fragmentShader').textContent
+                            });
+
+                            var mesh = new THREE.Mesh(geometry, material);
+                            scene.add(mesh);
+
+                            renderer = new THREE.WebGLRenderer();
+                            renderer.setPixelRatio(window.devicePixelRatio);
+
+                            container.appendChild(renderer.domElement);
+
+                            onWindowResize();
+                            window.addEventListener('resize', onWindowResize, false);
+                        }
+
+                        function onWindowResize (event) {
+                            renderer.setSize(window.innerWidth, window.innerHeight);
+                            uniforms.u_resolution.value.x = renderer.domElement.width;
+                            uniforms.u_resolution.value.y = renderer.domElement.height;
+                            uniforms.u_mouse.value.x = mouse.x;
+                            uniforms.u_mouse.value.y = mouse.y;
+                        }
+
+                        function animate () {
+                            requestAnimationFrame(animate);
+                            render();
+                        }
+
+                        function render () {
+                            uniforms.u_time.value += clock.getDelta();
+                            renderer.render(scene, camera);
+                        }
+
+                        var container = document.getElementById('container');
+
+                        if (container) {
+
+                            init();
+                            animate();
+                        }
+                    </script>
+                    <script type="text/javascript" src="/src/main.js" defer></script>
+                </body>
+
+            </html>

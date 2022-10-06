@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+            <html lang="en" data-theme="light">
+
+                <head>
+                    <meta charset="utf-8">
+
+                    <title>The Book of Shaders</title>
+                    <link href="/favicon.gif" rel="shortcut icon" />
+                    <meta name="keywords" content="shader,openGL,WebGL,GLSL,book,procedural,generative" />
+                    <meta name="description" content="Gentle step-by-step guide through the abstract and complex universe of Fragment Shaders." />
+
+                    <!— Open Graph data —>
+                    <meta property="og:type" content="article" />
+                    <meta property="og:title" content="The Book of Shaders" />
+                    <meta property="og:site_name" content="The Book of Shaders" />
+                    <meta property="og:description" content="Gentle step-by-step guide through the abstract and complex universe of Fragment Shaders." />
+                    <meta property="og:image" content="http://thebookofshaders.com/thumb.png" />
+                    <meta property="og:image:secure_url" content="https://thebookofshaders.com/thumb.png" />
+                    <meta property="og:image:type" content="image/png" />
+                    <meta property="og:image:width" content="500" />
+                    <meta property="og:image:height" content="500" />
+
+                    <link href="/favicon.gif" rel="shortcut icon" />
+
+                    <!-- Highlight -->
+                    <link type="text/css" rel="stylesheet" href="/css/github.css">
+                    <script type="text/javascript" src="/src/highlight.min.js"></script>
+                    <!-- GlslCanvas -->
+                    <script type="text/javascript" src="/src/glslCanvas/GlslCanvas.js"></script>
+
+                    <!-- GlslEditor -->
+                    <link type="text/css" rel="stylesheet" href="/src/glslEditor/glslEditor.css">
+                    <script type="application/javascript" src="/src/glslEditor/glslEditor.js"></script>
+
+                    <!-- GlslGallery -->
+                    <link type="text/css" rel="stylesheet" href="/src/glslGallery/glslGallery.css">
+                    <script type="application/javascript" src="/src/glslGallery/glslGallery.js"></script>
+
+                    <!-- Main style -->
+                    <link type="text/css" rel="stylesheet" href="/css/styles.css">
+
+                </head>
+
+                <body>
+                    <div class="toc-header">
+                        <p class="subtitle"><a href="https://thebookofshaders.com/">The Book of Shaders</a> by <a href="http://patriciogonzalezvivo.com">Patricio Gonzalez Vivo</a> & <a href="http://jenlowe.net">Jen Lowe</a> </p>
+                        <p>  <a href=".">中文版</a> - <a href="https://thebookofshaders.com/">English</a></p>
+                    </div>
+                    <hr>
+
+                    <div id="content"><h2 id="uniforms">Uniforms</h2>
+<p>现在我们知道了 GPU 如何处理并行线程，每个线程负责给完整图像的一部分配置颜色。尽管每个线程和其他线程之间不能有数据交换，但我们能从 CPU 给每个线程输入数据。因为显卡的架构，所有线程的输入值必须<strong>统一</strong>（uniform），而且必须设为<strong>只读</strong>。也就是说，每条线程接收相同的数据，并且是不可改变的数据。</p>
+<p>这些输入值叫做 <code>uniform</code> （统一值），它们的数据类型通常为：<code>float</code>, <code>vec2</code>, <code>vec3</code>, <code>vec4</code>, <code>mat2</code>, <code>mat3</code>, <code>mat4</code>, <code>sampler2D</code> and <code>samplerCube</code>。uniform 值需要数值类型前后一致。且在 shader 的开头，在设定精度之后，就对其进行定义。</p>
+<pre><code class="language-glsl">#ifdef GL_ES
+precision mediump float;
+#endif
+
+uniform vec2 u_resolution; // 画布尺寸（宽，高）
+uniform vec2 u_mouse;      // 鼠标位置（在屏幕上哪个像素）
+uniform float u_time;	  // 时间（加载后的秒数）
+</code></pre>
+<p>你可以把 uniforms 想象成连通 GPU 和 CPU 的许多小的桥梁。虽然这些 uniforms 的名字千奇百怪，但是在这一系列的例子中我一直有用到：<code>u_time</code> （时间）, <code>u_resolution</code> （画布尺寸）和 <code>u_mouse</code> （鼠标位置）。按业界传统应在 uniform 值的名字前加 <code>u_</code> ，这样一看即知是 uniform。尽管如此你也还会见到各种各样的名字。比如<a href="https://www.shadertoy.com/">ShaderToy.com</a>就用了如下的名字：</p>
+<pre><code class="language-glsl">uniform vec3 iResolution;   // 视口分辨率（以像素计）
+uniform vec4 iMouse;        // 鼠标坐标 xy： 当前位置, zw： 点击位置
+uniform float iTime;        // shader 运行时间（以秒计）
+</code></pre>
+<p>好了说的足够多了，我们来看看实际操作中的 uniform 吧。在下面的代码中我们使用  <code>u_time</code> 加上一个 sin 函数，来展示图中红色的动态变化。</p>
+<div class="codeAndCanvas" data="time.frag"></div>
+
+<p>GLSL 还有更多惊喜。GPU 的硬件加速支持我们使用角度，三角函数和指数函数。这里有一些这些函数的介绍：<a href="../glossary/?search=sin"><code>sin()</code></a>, <a href="../glossary/?search=cos"><code>cos()</code></a>, <a href="../glossary/?search=tan"><code>tan()</code></a>, <a href="../glossary/?search=asin"><code>asin()</code></a>, <a href="../glossary/?search=acos"><code>acos()</code></a>, <a href="../glossary/?search=atan"><code>atan()</code></a>, <a href="../glossary/?search=pow"><code>pow()</code></a>, <a href="../glossary/?search=exp"><code>exp()</code></a>, <a href="../glossary/?search=log"><code>log()</code></a>, <a href="../glossary/?search=sqrt"><code>sqrt()</code></a>, <a href="../glossary/?search=abs"><code>abs()</code></a>, <a href="../glossary/?search=sign"><code>sign()</code></a>, <a href="../glossary/?search=floor"><code>floor()</code></a>, <a href="../glossary/?search=ceil"><code>ceil()</code></a>, <a href="../glossary/?search=fract"><code>fract()</code></a>, <a href="../glossary/?search=mod"><code>mod()</code></a>, <a href="../glossary/?search=min"><code>min()</code></a>, <a href="../glossary/?search=max"><code>max()</code></a> 和 <a href="../glossary/?search=clamp"><code>clamp()</code></a>。</p>
+<p>现在又到你来玩的时候了。</p>
+<ul>
+<li><p>降低颜色变化的速率，直到肉眼都看不出来。</p>
+</li>
+<li><p>加速变化，直到颜色静止不动。</p>
+</li>
+<li><p>玩一玩 RGB 三个通道，分别给三个颜色不同的变化速度，看看能不能做出有趣的效果。</p>
+</li>
+</ul>
+<h2 id="gl_fragcoord">gl_FragCoord</h2>
+<p>就像 GLSL 有个默认输出值 <code>vec4 gl_FragColor</code> 一样，它也有一个默认输入值（ <code>vec4 gl_FragCoord</code> ）。<code> gl_FragCoord</code>存储了活动线程正在处理的<strong>像素</strong>或<strong>屏幕碎片</strong>的坐标。有了它我们就知道了屏幕上的哪一个线程正在运转。为什么我们不叫 <code> gl_FragCoord</code> uniform （统一值）呢？因为每个像素的坐标都不同，所以我们把它叫做 <strong>varying</strong>（变化值）。</p>
+<div class="codeAndCanvas" data="space.frag"></div>
+
+<p>上述代码中我们用 <code>gl_FragCoord.xy</code> 除以 <code>u_resolution</code>，对坐标进行了<strong>规范化</strong>。这样做是为了使所有的值落在 <code>0.0</code> 到 <code>1.0</code> 之间，这样就可以轻松把 X 或 Y 的值映射到红色或者绿色通道。</p>
+<p>在 shader 的领域我们没有太多要 debug 的，更多地是试着给变量赋一些很炫的颜色，试图做出一些效果。有时你会觉得用 GLSL 编程就像是把一搜船放到了瓶子里。它同等地困难、美丽而令人满足。</p>
+<p><img src="08.png" alt=""></p>
+<p>现在我们来检验一下我们对上面代码的理解程度。</p>
+<ul>
+<li><p>你明白 <code>(0.0,0.0)</code> 坐标在画布上的哪里吗？</p>
+</li>
+<li><p>那 <code>(1.0,0.0)</code>, <code>(0.0,1.0)</code>, <code>(0.5,0.5)</code> 和 <code>(1.0,1.0)</code> 呢？</p>
+</li>
+<li><p>你知道如何用<strong>未</strong>规范化（normalized）的 <code>u_mouse</code> 吗？你可以用它来移动颜色吗？</p>
+</li>
+<li><p>你可以用 <code>u_time</code> 和 <code>u_mouse</code> 来改变颜色的图案吗？不妨琢磨一些有趣的途径。</p>
+</li>
+</ul>
+<p>经过这些小练习后，你可能会好奇还能用强大的 shader 做什么。接下来的章节你会知道如何把你的 shader 和 three.js，Processing，和 openFrameworks 结合起来。</p>
+</div>
+
+                    <hr>
+                    <ul class="navigationBar" >
+                            <li class="navigationBar" onclick="previusPage()">&lt; &lt; Previous</li>
+                            <li class="navigationBar" onclick="homePage()"> Home </li>
+                            <li class="navigationBar" onclick="nextPage()">Next &gt; &gt;</li>
+                        </ul>
+
+                    <footer>
+                        <p> Copyright 2015 <a href="http://www.patriciogonzalezvivo.com" target="_blank">Patricio Gonzalez Vivo</a> </p>
+                    </footer>
+
+                    <script src="/src/three.min.js"></script>
+
+                    <script id="vertexShader" type="x-shader/x-vertex">
+                        void main() {
+                            gl_Position = vec4( position, 1.0 );
+                        }
+                    </script>
+
+                    <script id="fragmentShader" type="x-shader/x-fragment">
+                        uniform vec2 u_resolution;
+                        uniform vec2 u_mouse;
+                        uniform float u_time;
+
+                        void main() {
+                            vec2 st = gl_FragCoord.xy/u_resolution.xy;
+                            gl_FragColor=vec4(st.x,st.y,0.0,1.0);
+                        }
+                    </script>
+
+                    <script>
+                        var camera, scene, renderer, clock;
+                        var uniforms;
+                        var mouse = { x: 0, y: 0 };
+
+                        document.onmousemove = getMouseXY;
+
+                        function getMouseXY (e) {
+                            mouse.x = e.pageX;
+                            mouse.y = e.pageY;
+                        }
+
+                        function init () {
+
+                            camera = new THREE.Camera();
+                            camera.position.z = 1;
+
+                            scene = new THREE.Scene();
+                            clock = new THREE.Clock();
+
+                            var geometry = new THREE.PlaneBufferGeometry(2, 2);
+
+                            uniforms = {
+                                u_time: { type: "f", value: 1.0 },
+                                u_mouse: { type: "v2", value: new THREE.Vector2() },
+                                u_resolution: { type: "v2", value: new THREE.Vector2() }
+                            };
+
+                            var material = new THREE.ShaderMaterial({
+                                uniforms: uniforms,
+                                vertexShader: document.getElementById('vertexShader').textContent,
+                                fragmentShader: document.getElementById('fragmentShader').textContent
+                            });
+
+                            var mesh = new THREE.Mesh(geometry, material);
+                            scene.add(mesh);
+
+                            renderer = new THREE.WebGLRenderer();
+                            renderer.setPixelRatio(window.devicePixelRatio);
+
+                            container.appendChild(renderer.domElement);
+
+                            onWindowResize();
+                            window.addEventListener('resize', onWindowResize, false);
+                        }
+
+                        function onWindowResize (event) {
+                            renderer.setSize(window.innerWidth, window.innerHeight);
+                            uniforms.u_resolution.value.x = renderer.domElement.width;
+                            uniforms.u_resolution.value.y = renderer.domElement.height;
+                            uniforms.u_mouse.value.x = mouse.x;
+                            uniforms.u_mouse.value.y = mouse.y;
+                        }
+
+                        function animate () {
+                            requestAnimationFrame(animate);
+                            render();
+                        }
+
+                        function render () {
+                            uniforms.u_time.value += clock.getDelta();
+                            renderer.render(scene, camera);
+                        }
+
+                        var container = document.getElementById('container');
+
+                        if (container) {
+
+                            init();
+                            animate();
+                        }
+                    </script>
+                    <script type="text/javascript" src="/src/main.js" defer></script>
+                </body>
+
+            </html>

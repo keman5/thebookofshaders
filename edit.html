@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset='utf-8'>
+        <title>GLSL Editor</title>
+        <link href='/favicon.gif' rel='shortcut icon' />
+
+        <style>
+            body {
+                height: 100%;
+                margin: 0;
+                background: #272822;
+            }
+
+            #glsl_editor {
+                height: 100%;
+            }
+
+        </style>
+    </head>
+
+    <body>
+        <div id='glsl_editor'></div>
+    </body>
+
+    <link type='text/css' rel='stylesheet' href='/src/glslEditor/glslEditor.css'>
+    <script type='application/javascript' src='/src/glslEditor/glslEditor.js'></script>
+    <script type='text/javascript'>
+        var glslEditor = {};
+
+        function loadjscssfile(filename, filetype, callback){
+            if (filetype=="js") { //if filename is a external JavaScript file
+                var fileref = document.createElement('script')
+                fileref.setAttribute("type","text/javascript")
+                fileref.setAttribute("src", filename)
+            }
+            else if (filetype=="css") { //if filename is an external CSS file
+                var fileref = document.createElement("link")
+                fileref.setAttribute("rel", "stylesheet")
+                fileref.setAttribute("type", "text/css")
+                fileref.setAttribute("href", filename)
+            }
+
+            fileref.onload = callback;
+            fileref.onreadystatechange = callback;
+
+            if (typeof fileref != "undefined") {
+                document.getElementsByTagName("head")[0].appendChild(fileref)
+            }
+        }
+
+        function init() {
+            glslEditor = new GlslEditor('#glsl_editor', {
+                canvas_size: 500,
+                canvas_draggable: true,
+                theme: 'monokai',
+                multipleBuffers: true,
+                watchHash: true,
+                fileDrops: true,
+                menu: true
+            });
+            document.body.style.backgroundColor = window.getComputedStyle(glslEditor.editor.getWrapperElement(),null).getPropertyValue('background-color');
+        }
+
+        window.onload = function() {
+            // if ()
+            if (window.GlslEditor && window.GlslEditor) {
+                init();
+            } else {
+                console.log('Try to load a local glslEditor');
+                if (!window.glslEditor) {
+                    loadjscssfile('src/glslEditor/glslEditor.css', 'css');
+                    loadjscssfile('src/glslEditor/glslEditor.js', 'js', init);
+                }
+            }
+        };
+
+    </script>
+
+</html>

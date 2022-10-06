@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+            <html lang="en" data-theme="light">
+
+                <head>
+                    <meta charset="utf-8">
+
+                    <title>The Book of Shaders</title>
+                    <link href="/favicon.gif" rel="shortcut icon" />
+                    <meta name="keywords" content="shader,openGL,WebGL,GLSL,book,procedural,generative" />
+                    <meta name="description" content="Gentle step-by-step guide through the abstract and complex universe of Fragment Shaders." />
+
+                    <!— Open Graph data —>
+                    <meta property="og:type" content="article" />
+                    <meta property="og:title" content="The Book of Shaders" />
+                    <meta property="og:site_name" content="The Book of Shaders" />
+                    <meta property="og:description" content="Gentle step-by-step guide through the abstract and complex universe of Fragment Shaders." />
+                    <meta property="og:image" content="http://thebookofshaders.com/thumb.png" />
+                    <meta property="og:image:secure_url" content="https://thebookofshaders.com/thumb.png" />
+                    <meta property="og:image:type" content="image/png" />
+                    <meta property="og:image:width" content="500" />
+                    <meta property="og:image:height" content="500" />
+
+                    <link href="/favicon.gif" rel="shortcut icon" />
+
+                    <!-- Highlight -->
+                    <link type="text/css" rel="stylesheet" href="/css/github.css">
+                    <script type="text/javascript" src="/src/highlight.min.js"></script>
+                    <!-- GlslCanvas -->
+                    <script type="text/javascript" src="/src/glslCanvas/GlslCanvas.js"></script>
+
+                    <!-- GlslEditor -->
+                    <link type="text/css" rel="stylesheet" href="/src/glslEditor/glslEditor.css">
+                    <script type="application/javascript" src="/src/glslEditor/glslEditor.js"></script>
+
+                    <!-- GlslGallery -->
+                    <link type="text/css" rel="stylesheet" href="/src/glslGallery/glslGallery.css">
+                    <script type="application/javascript" src="/src/glslGallery/glslGallery.js"></script>
+
+                    <!-- Main style -->
+                    <link type="text/css" rel="stylesheet" href="/css/styles.css">
+
+                </head>
+
+                <body>
+                    <div class="toc-header">
+                        <p class="subtitle"><a href="https://thebookofshaders.com/">The Book of Shaders</a> by <a href="http://patriciogonzalezvivo.com">Patricio Gonzalez Vivo</a> & <a href="http://jenlowe.net">Jen Lowe</a> </p>
+                        <p>  <a href=".">中文版</a> - <a href="https://thebookofshaders.com/">English</a></p>
+                    </div>
+                    <hr>
+
+                    <div id="content"><h1 id="算法绘画">算法绘画</h1>
+<h2 id="造型函数">造型函数</h2>
+<p>这一章应该叫做宫城先生的粉刷课（来自电影龙威小子的经典桥段）。之前我们把规范化后的 x,y 坐标映射（map）到了红色和绿色通道。本质上说我们是建造了这样一个函数：输入一个二维向量（x，y)，然后返回一个四维向量（r，g，b，a）。但在我们跨维度转换数据之前，我们先从更加…更加简单的开始。我们来建一个只有一维变量的函数。你花越多的时间和精力在这上面，你的 shader 功夫就越厉害。</p>
+<p><img src="mr_miyagi.jpg" alt="The Karate Kid (1984)"></p>
+<p>接下来的代码结构就是我们的基本功。在它之中我们对规范化的 x 坐标（<code>st.x</code>）进行可视化。有两种途径：一种是用亮度（度量从黑色到白色的渐变过程），另一种是在顶层绘制一条绿色的线（在这种情况下 x 被直接赋值给 y）。不用过分在意绘制函数，我们马上会更加详细地解释它。</p>
+<div class="codeAndCanvas" data="linear.frag"></div>
+
+<p><strong>简注</strong> ：<code>vec3</code> 类型构造器“明白”你想要把一个值赋值到颜色的三个通道里，就像 <code>vec4</code> 明白你想要构建一个四维向量，三维向量加上第四个值（比如颜色的三个值加上透明度）。请参照上面示例的第 19 到 25 行。</p>
+<p>这些代码就是你的基本功；遵守和理解它非常重要。你将会一遍又一遍地回到 0.0 到 1.0 这个区间。你将会掌握融合与构建这些代码的艺术。</p>
+<p>这些 x 与 y（或亮度）之间一对一的关系称作<strong>线性插值</strong>（linear interpolation）。（译者注：插值是离散函数逼近的重要方法，利用它可通过函数在有限个点处的取值状况，估算出函数在其他点处的近似值。因为对计算机来说，屏幕像素是离散的而不是连续的，计算机图形学常用插值来填充图像像素之间的空隙。）现在起我们可以用一些数学函数来改造这些代码行。比如说我们可以做一个求 x 的 5 次幂的曲线。</p>
+<div class="codeAndCanvas" data="expo.frag"></div>
+
+<p>很有趣，对吧？试试看把第 19 行的指数改为不同的值，比如：20.0，2.0，1.0，0.0，0.2 或 0.02。理解值和指数之间的关系非常重要。这些数学函数可以让你灵动地控制你的代码，就像是给数据做针灸一样。</p>
+<p><a href="../glossary/?search=pow"><code>pow()</code></a> （求x的y次幂）是 GLSL 的一个原生函数，GLSL 有很多原生函数。大多数原生函数都是硬件加速的，也就是说如果你正确使用这些函数，你的代码就会跑得更快。</p>
+<p>换掉第 19 行的幂函数，试试看<a href="../glossary/?search=exp"><code>exp()</code></a>（以自然常数e为底的指数函数），<a href="../glossary/?search=log"><code>log()</code></a>(对数函数) 和 <a href="../glossary/?search=sqrt"><code>sqrt()</code></a>（平方根函数）。当你用 Pi 来玩的时候有些方程会变得更有趣。在第 5 行我定义了一个宏，使得每当程序调用 <code>PI</code> 的时候就用 <code>3.14159265359</code> 来替换它。</p>
+<h3 id="step-和-smoothstep">Step 和 Smoothstep</h3>
+<p>GLSL 还有一些独特的原生插值函数可以被硬件加速。</p>
+<p><a href="../glossary/?search=step"><code>step()</code></a> 插值函数需要输入两个参数。第一个是极限或阈值，第二个是我们想要检测或通过的值。对任何小于阈值的值，返回 <code>0.0</code>，大于阈值，则返回 <code>1.0</code>。</p>
+<p>试试看改变下述代码中第 20 行的值。</p>
+<div class="codeAndCanvas" data="step.frag"></div>
+
+<p>另一个 GLSL 的特殊函数是 <a href="../glossary/?search=smoothstep"><code>smoothstep()</code></a>。当给定一个范围的上下限和一个数值，这个函数会在已有的范围内给出插值。前两个参数规定转换的开始和结束点，第三个是给出一个值用来插值。</p>
+<div class="codeAndCanvas" data="smoothstep.frag"></div>
+
+<p>在之前的例子中，注意第 12 行，我们用到 smoothstep 在 <code>plot()</code> 函数中画了一条绿色的线。这个函数会对给出的 x 轴上的每个值，在特定的 y 值处制造一个凹凸形变。如何做到呢？通过把两个 <a href="../glossary/?search=smoothstep"><code>smoothstep()</code></a> 连接到一起。来看看下面这个函数，用它替换上面的第 20 行，把它想成是一个垂直切割。背景看起来很像一条线，不是吗？</p>
+<pre><code class="language-glsl">    float y = smoothstep(0.2,0.5,st.x) - smoothstep(0.5,0.8,st.x);
+</code></pre>
+<h3 id="正弦和余弦函数">正弦和余弦函数</h3>
+<p>当你想用数学来制造动效，形态或去混合数值，sin 和 cos 就是你的最佳伙伴。</p>
+<p>这两个基础的三角函数是构造圆的极佳工具，就像张小泉的剪刀一样称手。很重要的一点是你需要知道它们是如何运转的，还有如何把它们结合起来。简单来说，当我们给出一个角度（这里采用弧度制），它就会返回半径为一的圆上一个点的 x 坐标（<a href="../glossary/?search=cos">cos</a>）和 y 坐标（<a href="../glossary/?search=sin">sin</a>）。正因为 sin 和 cos 返回的是规范化的值（即值域在 -1 和 1 之间），且如此流畅，这就使得它成为一个极其强大的工具。</p>
+<p><img src="sincos.gif" alt=""></p>
+<p>尽管描述三角函数和圆的关系是一件蛮困难的事情，上图动画很棒地做到了这一点，视觉化展现了它们之间的关系。</p>
+<div class="simpleFunction" data="y = sin(x);"></div>
+
+<p>仔细看 sin 曲线。观察 y 值是如何平滑地在 +1 和 -1 之间变化。就像之前章节关于的 time 的例子中，你可以用 <a href="../glossary/?search=sin"><code>sin()</code></a> 的有节奏的变动给其他东西加动效。如果你是在用浏览器阅读的话你可以改动上述公式，看看曲线会如何变动。(注：不要忘记每行最后要加分号！）</p>
+<p>试试下面的小练习，看看会发生什么：</p>
+<ul>
+<li><p>在 <code>sin</code> 里让 x 加上时间（<code>u_time</code>）。让sin 曲线随 x 轴<strong>动起来</strong>。</p>
+</li>
+<li><p>在 <code>sin</code> 里用 <code>PI</code> 乘以 x。注意 sin 曲线上下波动的两部分如何<strong>收缩</strong>了，现在 sin 曲线每两个整数循环一次。</p>
+</li>
+<li><p>在 <code>sin</code> 里用时间（	<code>u_time</code>)乘以 x。观察各阶段的循环如何变得越来越<strong>频繁</strong>。注意 u_time 可能已经变得非常大，使得图像难以辨认。</p>
+</li>
+<li><p>给 <a href="../glossary/?search=sin"><code>sin(x)</code></a>（注意不是 sin 里的 x）加 1.0。观察曲线是如何向上<strong>移动</strong>的，现在值域变成了 0.0 到 2.0。</p>
+</li>
+<li><p>给 <a href="../glossary/?search=sin"><code>sin(x)</code></a> 乘以 2.0。观察曲线大小如何<strong>增大</strong>两倍。</p>
+</li>
+<li><p>计算 <code>sin(x)</code> 的绝对值（<a href="../glossary/?search=abs"><code>abs()</code></a>）。现在它看起来就像一个<strong>弹力球</strong>的轨迹。</p>
+</li>
+<li><p>只选取 <code>sin(x)</code> 的小数部分（<a href="../glossary/?search=fract"><code>fract()</code></a>）。</p>
+</li>
+<li><p>使用向正无穷取整（<a href="../glossary/?search=ceil"><code>ceil()</code></a>）和向负无穷取整（<a href="../glossary/?search=floor"><code>floor()</code></a>），使得 sin 曲线变成只有 1 和 -1 的电子波。</p>
+</li>
+</ul>
+<h3 id="其他有用的函数">其他有用的函数</h3>
+<p>最后一个练习中我们介绍了一些新函数。现在我们来一个一个试一遍。依次取消注释下列各行，理解这些函数，观察它们是如何运作的。你一定在奇怪……为什么要这么做呢？Google 一下“generative art”（生成艺术）你就知道了。要知道这些函数就是我们的栅栏。我们现在控制的是它在一维中的移动，上上下下。很快，我们就可以尝试二维、三维甚至四维了！</p>
+<p><img src="anthony-mattox-ribbon.jpg" alt="Anthony Mattox (2009)"></p>
+<div class="simpleFunction" data="y = mod(x,0.5); // 返回 x 对 0.5 取模的值
+//y = fract(x); // 仅仅返回数的小数部分
+//y = ceil(x);  // 向正无穷取整
+//y = floor(x); // 向负无穷取整
+//y = sign(x);  // 提取 x 的正负号
+//y = abs(x);   // 返回 x 的绝对值
+//y = clamp(x,0.0,1.0); // 把 x 的值限制在 0.0 到 1.0
+//y = min(0.0,x);   // 返回 x 和 0.0 中的较小值
+//y = max(0.0,x);   // 返回 x 和 0.0 中的较大值  "></div>
+
+<h3 id="造型函数进阶">造型函数进阶</h3>
+<p><a href="http://www.flong.com/">Golan Levin</a> 写过关于更加复杂的造型函数的文档，非常有帮助。把它们引入 GLSL 是非常明智的选择，这将是你的代码的广阔的素材库</p>
+<ul>
+<li><p><a href="http://www.flong.com/archive/texts/code/shapers_poly/">多项式造型函数（Polynomial Shaping Functions）: www.flong.com/archive/texts/code/shapers_poly</a></p>
+</li>
+<li><p><a href="http://www.flong.com/archive/texts/code/shapers_exp/">指数造型函数（Exponential Shaping Functions）: www.flong.com/archive/texts/code/shapers_exp</a></p>
+</li>
+<li><p><a href="http://www.flong.com/archive/texts/code/shapers_circ/">圆与椭圆的造型函数（Circular &amp; Elliptical Shaping Functions）: www.flong.com/archive/texts/code/shapers_circ</a></p>
+</li>
+<li><p><a href="http://www.flong.com/archive/texts/code/shapers_bez/">贝塞尔和其他参数化造型函数（Bezier and Other Parametric Shaping Functions）: www.flong.com/archive/texts/code/shapers_bez</a></p>
+</li>
+</ul>
+<p>就像厨师自主选择辣椒和各种原料，数字艺术家和创意编程者往往钟情于使用他们自己的造型函数。</p>
+<p><a href="http://www.iquilezles.org/">Iñigo Quiles</a> 收集了一套<a href="http://www.iquilezles.org/www/articles/functions/functions.htm">有用的函数</a>。在看过<a href="http://www.iquilezles.org/www/articles/functions/functions.htm">这篇文章</a>后，看看下列函数转换到 GLSL 的样子。注意那些细小的改变，比如给浮点数（float)加小数点“.”，给“C 系函数”换成它们在 GLSL 里的名字，比如不是用 <code>powf()</code> 而是用 <code>pow()</code>：</p>
+<ul>
+<li><a href="../edit.php#05/impulse.frag">Impulse</a></li>
+<li><a href="../edit.php#05/cubicpulse.frag">Cubic Pulse</a></li>
+<li><a href="../edit.php#05/expstep.frag">Exponential Step</a></li>
+<li><a href="../edit.php#05/parabola.frag">Parabola</a></li>
+<li><a href="../edit.php#05/pcurve.frag">Power Curve</a></li>
+</ul>
+<p>给你们看些东西刺激一下斗志，这里有一个非常优雅的例子（作者是 <a href="https://www.shadertoy.com/user/Danguafer">Danguafer</a>，造型函数的空手道黑带）。</p>
+<iframe width="800" height="450" frameborder="0" src="https://www.shadertoy.com/embed/XsXXDn?gui=true&t=10&paused=true" allowfullscreen></iframe>
+
+<p>在下一章我们会有一些新的进展。我们会先混合各种颜色，然后画些形状。</p>
+<h4 id="练习">练习</h4>
+<p>来看看 <a href="http://www.kynd.info/log/">Kynd</a> 帮大家制作的公式表。看他如何结合各种函数及它们的属性，始终控制值的范围在 0.0 到 1.0。好了，现在是你自己练习的时候了！来试试这些函数，记住：熟能生巧。</p>
+<p><img src="kynd.png" alt="Kynd - www.flickr.com/photos/kynd/9546075099/ (2013)"></p>
+<h4 id="填充你的工具箱">填充你的工具箱</h4>
+<p>这里有一些工具可以帮你更轻松地可视化这些函数。</p>
+<ul>
+<li>Grapher：如果你是用 MacOS 系统，用 spotlight 搜 <code>grapher</code> 就会看到这个超级方便的工具了。</li>
+</ul>
+<p><img src="grapher.png" alt="OS X Grapher (2004)"></p>
+<ul>
+<li><a href="http://www.iquilezles.org/apps/graphtoy/">GraphToy</a>：仍然是 <a href="http://www.iquilezles.org">Iñigo Quilez</a> 为大家做的工具，用于在 WebGL 中可视化 GLSL 函数。</li>
+</ul>
+<p><img src="graphtoy.png" alt="Iñigo Quilez - GraphToy (2010)"></p>
+<ul>
+<li><a href="http://tobyschachman.com/Shadershop/">Shadershop</a>：这个超级棒的工具是 <a href="http://tobyschachman.com/">Toby Schachman</a> 的作品。它会以一种极其视觉化和直观的方式教你如何建造复杂的函数。</li>
+</ul>
+<p><img src="shadershop.png" alt="Toby Schachman - Shadershop (2014)"></p>
+</div>
+
+                    <hr>
+                    <ul class="navigationBar" >
+                            <li class="navigationBar" onclick="previusPage()">&lt; &lt; Previous</li>
+                            <li class="navigationBar" onclick="homePage()"> Home </li>
+                            <li class="navigationBar" onclick="nextPage()">Next &gt; &gt;</li>
+                        </ul>
+
+                    <footer>
+                        <p> Copyright 2015 <a href="http://www.patriciogonzalezvivo.com" target="_blank">Patricio Gonzalez Vivo</a> </p>
+                    </footer>
+
+                    <script src="/src/three.min.js"></script>
+
+                    <script id="vertexShader" type="x-shader/x-vertex">
+                        void main() {
+                            gl_Position = vec4( position, 1.0 );
+                        }
+                    </script>
+
+                    <script id="fragmentShader" type="x-shader/x-fragment">
+                        uniform vec2 u_resolution;
+                        uniform vec2 u_mouse;
+                        uniform float u_time;
+
+                        void main() {
+                            vec2 st = gl_FragCoord.xy/u_resolution.xy;
+                            gl_FragColor=vec4(st.x,st.y,0.0,1.0);
+                        }
+                    </script>
+
+                    <script>
+                        var camera, scene, renderer, clock;
+                        var uniforms;
+                        var mouse = { x: 0, y: 0 };
+
+                        document.onmousemove = getMouseXY;
+
+                        function getMouseXY (e) {
+                            mouse.x = e.pageX;
+                            mouse.y = e.pageY;
+                        }
+
+                        function init () {
+
+                            camera = new THREE.Camera();
+                            camera.position.z = 1;
+
+                            scene = new THREE.Scene();
+                            clock = new THREE.Clock();
+
+                            var geometry = new THREE.PlaneBufferGeometry(2, 2);
+
+                            uniforms = {
+                                u_time: { type: "f", value: 1.0 },
+                                u_mouse: { type: "v2", value: new THREE.Vector2() },
+                                u_resolution: { type: "v2", value: new THREE.Vector2() }
+                            };
+
+                            var material = new THREE.ShaderMaterial({
+                                uniforms: uniforms,
+                                vertexShader: document.getElementById('vertexShader').textContent,
+                                fragmentShader: document.getElementById('fragmentShader').textContent
+                            });
+
+                            var mesh = new THREE.Mesh(geometry, material);
+                            scene.add(mesh);
+
+                            renderer = new THREE.WebGLRenderer();
+                            renderer.setPixelRatio(window.devicePixelRatio);
+
+                            container.appendChild(renderer.domElement);
+
+                            onWindowResize();
+                            window.addEventListener('resize', onWindowResize, false);
+                        }
+
+                        function onWindowResize (event) {
+                            renderer.setSize(window.innerWidth, window.innerHeight);
+                            uniforms.u_resolution.value.x = renderer.domElement.width;
+                            uniforms.u_resolution.value.y = renderer.domElement.height;
+                            uniforms.u_mouse.value.x = mouse.x;
+                            uniforms.u_mouse.value.y = mouse.y;
+                        }
+
+                        function animate () {
+                            requestAnimationFrame(animate);
+                            render();
+                        }
+
+                        function render () {
+                            uniforms.u_time.value += clock.getDelta();
+                            renderer.render(scene, camera);
+                        }
+
+                        var container = document.getElementById('container');
+
+                        if (container) {
+
+                            init();
+                            animate();
+                        }
+                    </script>
+                    <script type="text/javascript" src="/src/main.js" defer></script>
+                </body>
+
+            </html>

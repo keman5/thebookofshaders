@@ -112,14 +112,6 @@ Thanks to everyone who has believed in this project and [contributed with fixes]
 
 Sign up for the news letter or [follow it on Twitter](https://twitter.com/bookofshaders)
 
-<div id="fd-form-623359074e5181d777e479f9"></div>
-<script>
-  window.fd('form', {
-    formId: '623359074e5181d777e479f9',
-    containerEl: '#fd-form-623359074e5181d777e479f9'
-  });
-</script>
-
 ## LICENSE
 
 Copyright (c) Patricio Gonzalez Vivo, 2015 - http://patriciogonzalezvivo.com/

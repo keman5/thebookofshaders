@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+            <html lang="en" data-theme="light">
+
+                <head>
+                    <meta charset="utf-8">
+
+                    <title>The Book of Shaders</title>
+                    <link href="/favicon.gif" rel="shortcut icon" />
+                    <meta name="keywords" content="shader,openGL,WebGL,GLSL,book,procedural,generative" />
+                    <meta name="description" content="Gentle step-by-step guide through the abstract and complex universe of Fragment Shaders." />
+
+                    <!— Open Graph data —>
+                    <meta property="og:type" content="article" />
+                    <meta property="og:title" content="The Book of Shaders" />
+                    <meta property="og:site_name" content="The Book of Shaders" />
+                    <meta property="og:description" content="Gentle step-by-step guide through the abstract and complex universe of Fragment Shaders." />
+                    <meta property="og:image" content="http://thebookofshaders.com/thumb.png" />
+                    <meta property="og:image:secure_url" content="https://thebookofshaders.com/thumb.png" />
+                    <meta property="og:image:type" content="image/png" />
+                    <meta property="og:image:width" content="500" />
+                    <meta property="og:image:height" content="500" />
+
+                    <link href="/favicon.gif" rel="shortcut icon" />
+
+                    <!-- Highlight -->
+                    <link type="text/css" rel="stylesheet" href="/css/github.css">
+                    <script type="text/javascript" src="/src/highlight.min.js"></script>
+                    <!-- GlslCanvas -->
+                    <script type="text/javascript" src="/src/glslCanvas/GlslCanvas.js"></script>
+
+                    <!-- GlslEditor -->
+                    <link type="text/css" rel="stylesheet" href="/src/glslEditor/glslEditor.css">
+                    <script type="application/javascript" src="/src/glslEditor/glslEditor.js"></script>
+
+                    <!-- GlslGallery -->
+                    <link type="text/css" rel="stylesheet" href="/src/glslGallery/glslGallery.css">
+                    <script type="application/javascript" src="/src/glslGallery/glslGallery.js"></script>
+
+                    <!-- Main style -->
+                    <link type="text/css" rel="stylesheet" href="/css/styles.css">
+
+                </head>
+
+                <body>
+                    <div class="toc-header">
+                        <p class="subtitle"><a href="https://thebookofshaders.com/">The Book of Shaders</a> by <a href="http://patriciogonzalezvivo.com">Patricio Gonzalez Vivo</a> & <a href="http://jenlowe.net">Jen Lowe</a> </p>
+                        <p>  <a href=".">中文版</a> - <a href="https://thebookofshaders.com/">English</a></p>
+                    </div>
+                    <hr>
+
+                    <div id="content"><h1 id="开始">开始</h1>
+<h2 id="什么是-fragment-shader片段着色器？">什么是 Fragment Shader(片段着色器)？</h2>
+<p>在之前的章节我们把 shaders 和古腾堡印刷术相提并论。为什么这样类比呢？更重要的是，什么是 shader？</p>
+<p><img src="print.png" alt="From Letter-by-Letter, Right: William Blades (1891). To Page-by-page, Left: Rolt-Wheeler (1920)."></p>
+<p>如果你曾经有用计算机绘图的经验，你就知道在这个过程中你需要画一个圆，然后一个长方形，一条线，一些三角形……直到画出你想要的图像。这个过程很像用手写一封信或一本书 —— 都是一系列的指令，需要你一件一件完成。</p>
+<p>Shaders 也是一系列的指令，但是这些指令会对屏幕上的每个像素同时下达。也就是说，你的代码必须根据像素在屏幕上的不同位置执行不同的操作。就像活字印刷，你的程序就像一个 function（函数），输入位置信息，输出颜色信息，当它编译完之后会以相当快的速度运行。</p>
+<p><img src="typepress.jpg" alt="Chinese movable type"></p>
+<h2 id="为什么-shaders-运行特别快？">为什么 shaders 运行特别快？</h2>
+<p>为了回答这个问题，不得不给大家介绍<strong>并行处理</strong>（parallel processing）的神奇之处。</p>
+<p>想象你的 CPU 是一个大的工业管道，然后每一个任务都是通过这个管道的某些东西 —— 就像一个生产流水线那样。有些任务要比别的大，也就是说要花费更多时间和精力去处理。我们就称它要求更强的处理能力。由于计算机自身的架构，这些任务需要串行；即一次一个地依序完成。现代计算机通常有一组四个处理器，就像这个管道一样运行，一个接一个地处理这些任务，从而使计算机流畅运行。每个管道通常被称为<strong>线程</strong>。</p>
+<p><img src="00.jpeg" alt="CPU"></p>
+<p>视频游戏和其他图形应用比起别的程序来说，需要高得多的处理能力。因为它们的图形内容需要操作无数像素。想想看，屏幕上的每一个像素都需要计算，而在 3D 游戏中几何和透视也都需要计算。</p>
+<p>让我们回到开始那个关于管道和任务的比喻。屏幕上的每个像素都代表一个最简单的任务。单独来看完成任何一个像素的任务对 CPU 来说都很容易，那么问题来了，屏幕上的每一个像素都需要解决这样的小任务！也就是说，哪怕是对于一个老式的屏幕（分辨率 800x600）来说，都需要每帧处理480000个像素，即每秒进行14400000次计算！是的，这对于微处理器就是大问题了！而对于一个现代的 2800x1800 视网膜屏，每秒运行60帧，就需要每秒进行311040000次计算。图形工程师是如何解决这个问题的？</p>
+<p><img src="03.jpeg" alt=""></p>
+<p>这个时候，并行处理就是最好的解决方案。比起用三五个强大的微处理器（或者说“管道”）来处理这些信息，用一大堆小的微处理器来并行计算，就要好得多。这就是图形处理器（GPU : Graphic Processor Unit)的来由。</p>
+<p><img src="04.jpeg" alt="GPU"></p>
+<p>设想一堆小型微处理器排成一个平面的画面，假设每个像素的数据是乒乓球。14400000个乒乓球可以在一秒内阻塞几乎任何管道。但是一面800x600的管道墙，每秒接收30波480000个像素的信息就可以流畅完成。这在更高的分辨率下也是成立的 —— 并行的处理器越多，可以处理的数据流就越大。</p>
+<p>另一个 GPU 的魔法是特殊数学函数可通过硬件加速。非常复杂的数学操作可以直接被微芯片解决，而无须通过软件。这就表示可以有更快的三角和矩阵运算 —— 和电流一样快。</p>
+<h2 id="glsl是什么？">GLSL是什么？</h2>
+<p>GLSL 代表 openGL Shading Language，openGL 着色语言，这是你在接下来章节看到的程序所遵循的具体标准。根据硬件和操作系统的不同，还有其他的着色器（shaders)。这里我们将依照<a href="https://www.khronos.org/opengl/">Khronos Group</a>的规则来执行。了解 OpenGL 的历史将有助于你理解大多数奇怪的约定，所以建议不妨阅读<a href="http://openglbook.com/chapter-0-preface-what-is-opengl.html">openglbook.com/chapter-0-preface-what-is-opengl.html</a>。</p>
+<h2 id="为什么-shaders-有名地不好学？">为什么 Shaders 有名地不好学？</h2>
+<p>就像蜘蛛侠里的那句名言，能力越大责任越大，并行计算也是如此；GPU 的强大的架构设计也有其限制与不足。</p>
+<p>为了能使许多管线并行运行，每一个线程必须与其他的相独立。我们称这些线程对于其他线程在进行的运算是“盲视”的。这个限制就会使得所有数据必须以相同的方向流动。所以就不可能检查其他线程的输出结果，修改输入的数据，或者把一个线程的输出结果输入给另一个线程。允许数据在线程之间线程流动会使数据的整体性面临威胁。</p>
+<p>并且 GPU 会让所有并行的微处理器（管道们）一直处在忙碌状态；只要它们一有空闲就会接到新的信息。一个线程不可能知道它前一刻在做什么。它可能是在画操作系统界面上的一个按钮，然后渲染了游戏中的一部分天空，然后显示了一封 email 中的一些文字。每个线程不仅是“盲视”的，而且还是“无记忆”的。同时，它要求编写一个通用的规则，依据像素的不同位置依次输出不同的结果。这种抽象性，和盲视、无记忆的限制使得 shaders 在程序员新手中不是很受欢迎。</p>
+<p>但是不要担心！在接下来的章节中，我们会一步一步地，由浅入深地学习着色语言。如果你是在用一个靠谱的浏览器阅读这个教程，你会喜欢边读边玩书中的示例的。好了，不要再浪费时间了，赶快去玩起来吧！ 点击 <strong>Next &gt;&gt;</strong> 开启 shader 之旅！</p>
+</div>
+
+                    <hr>
+                    <ul class="navigationBar" >
+                            <li class="navigationBar" onclick="previusPage()">&lt; &lt; Previous</li>
+                            <li class="navigationBar" onclick="homePage()"> Home </li>
+                            <li class="navigationBar" onclick="nextPage()">Next &gt; &gt;</li>
+                        </ul>
+
+                    <footer>
+                        <p> Copyright 2015 <a href="http://www.patriciogonzalezvivo.com" target="_blank">Patricio Gonzalez Vivo</a> </p>
+                    </footer>
+
+                    <script src="/src/three.min.js"></script>
+
+                    <script id="vertexShader" type="x-shader/x-vertex">
+                        void main() {
+                            gl_Position = vec4( position, 1.0 );
+                        }
+                    </script>
+
+                    <script id="fragmentShader" type="x-shader/x-fragment">
+                        uniform vec2 u_resolution;
+                        uniform vec2 u_mouse;
+                        uniform float u_time;
+
+                        void main() {
+                            vec2 st = gl_FragCoord.xy/u_resolution.xy;
+                            gl_FragColor=vec4(st.x,st.y,0.0,1.0);
+                        }
+                    </script>
+
+                    <script>
+                        var camera, scene, renderer, clock;
+                        var uniforms;
+                        var mouse = { x: 0, y: 0 };
+
+                        document.onmousemove = getMouseXY;
+
+                        function getMouseXY (e) {
+                            mouse.x = e.pageX;
+                            mouse.y = e.pageY;
+                        }
+
+                        function init () {
+
+                            camera = new THREE.Camera();
+                            camera.position.z = 1;
+
+                            scene = new THREE.Scene();
+                            clock = new THREE.Clock();
+
+                            var geometry = new THREE.PlaneBufferGeometry(2, 2);
+
+                            uniforms = {
+                                u_time: { type: "f", value: 1.0 },
+                                u_mouse: { type: "v2", value: new THREE.Vector2() },
+                                u_resolution: { type: "v2", value: new THREE.Vector2() }
+                            };
+
+                            var material = new THREE.ShaderMaterial({
+                                uniforms: uniforms,
+                                vertexShader: document.getElementById('vertexShader').textContent,
+                                fragmentShader: document.getElementById('fragmentShader').textContent
+                            });
+
+                            var mesh = new THREE.Mesh(geometry, material);
+                            scene.add(mesh);
+
+                            renderer = new THREE.WebGLRenderer();
+                            renderer.setPixelRatio(window.devicePixelRatio);
+
+                            container.appendChild(renderer.domElement);
+
+                            onWindowResize();
+                            window.addEventListener('resize', onWindowResize, false);
+                        }
+
+                        function onWindowResize (event) {
+                            renderer.setSize(window.innerWidth, window.innerHeight);
+                            uniforms.u_resolution.value.x = renderer.domElement.width;
+                            uniforms.u_resolution.value.y = renderer.domElement.height;
+                            uniforms.u_mouse.value.x = mouse.x;
+                            uniforms.u_mouse.value.y = mouse.y;
+                        }
+
+                        function animate () {
+                            requestAnimationFrame(animate);
+                            render();
+                        }
+
+                        function render () {
+                            uniforms.u_time.value += clock.getDelta();
+                            renderer.render(scene, camera);
+                        }
+
+                        var container = document.getElementById('container');
+
+                        if (container) {
+
+                            init();
+                            animate();
+                        }
+                    </script>
+                    <script type="text/javascript" src="/src/main.js" defer></script>
+                </body>
+
+            </html>
